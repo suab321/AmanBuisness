@@ -1,7 +1,10 @@
 import React from 'react';
 import { Button } from 'react-bootstrap';
 import EachQuestion from './EachQuestion';
+import axios from 'axios';
 
+
+const {backendURL}=require("../../imp");
 class Question extends React.Component{
 
     constructor(props){
@@ -11,7 +14,7 @@ class Question extends React.Component{
             class:"",
             subject:"",
             topic:"",
-            questions:[{}],
+            questions:[],
             score:0,
             showScore:false
         }
@@ -27,15 +30,19 @@ class Question extends React.Component{
         }));
         console.log("correct");
     }
-    shouldComponentUpdate(prevState,prevProp){
-        // if(this.state.score!==prevState.score)
-        //     return false;
-        return true;
-    }
+    // shouldComponentUpdate(prevState,prevProp){
+    //     // if(this.state.score!==prevState.score)
+    //     //     return false;
+    //     return true;
+    // }
 
     componentDidMount(){
         //http req to fetch data
         // console.log("yes");
+        axios.get(`${backendURL}/request/questions/${localStorage.getItem("topicId")}`).then(res=>{
+            console.log(res.data);
+            this.setState({questions:res.data});
+        })
         var obj={
             id:0,
             question:"What is your name ?",
@@ -48,10 +55,10 @@ class Question extends React.Component{
             ques.push(obj);
         }
         // console.log(ques);
-        this.setState({questions:ques});
+        // this.setState({questions:ques});
     }
     render(){
-        // console.log(this.state);
+        console.log(this.state);
         if(this.state.showScore){
             return(
                 <div style={{marginTop:"100px",textAlign:'center'}}>
@@ -59,7 +66,7 @@ class Question extends React.Component{
                 </div>
             )
         }
-        else if(this.state.questions.length!==1){
+        else if(this.state.questions.length!==0){
             const renderElement=this.state.questions.map(i=>{
                 // console.log(i);
                 return(
@@ -77,7 +84,9 @@ class Question extends React.Component{
         }
         else{
             return(
-                <h1>HEllo</h1>
+                <div style={{marginTop:"100px",textAlign:'center'}}>
+                    <h1>HEllo</h1>
+                </div>
             )
         }
     }

@@ -1,6 +1,6 @@
 const router=require('express').Router();
 
-const {classModel,topicModel,questionModel}=require("../DataBase/database");
+const {classModel,topicModel,questionModel,subjectModel}=require("../DataBase/database");
 
 //middlewares to check for session
 // function checkSession(req,res,next){
@@ -8,9 +8,54 @@ const {classModel,topicModel,questionModel}=require("../DataBase/database");
 // }
 //ends
 
+//route class Started//
+router.get("/class",(req,res)=>{
+    classModel.find({}).populate("subjects").exec((err,data)=>{
+        if(err){
+            console.log(err);
+            res.status(400).json(err);
+        }
+        else
+            res.status(200).json(data);
+    })
+})
+//route class Ended//
+
+//subject Routes start//
+router.get("/subject/:className",(req,res)=>{
+    classModel.findOne({name:req.params.className}).populate("subjects").exec((err,data)=>{
+        if(err){
+            console.log(err);
+            res.status(400).json(err);
+        }
+        else
+            res.status(200).json(data);
+    });
+});
+
+router.post("/addSubject",async(req,res)=>{
+    console.log(req.body);
+    try {
+        let db=new subjectModel;
+        db.name=req.body.name;
+        db.topics=req.body.topics;
+        const data=await db.save();
+        try {
+            await classModel.findByIdAndUpdate({_id:req.body.classID},{$addToSet:{'subjects':data._id}});
+            res.status(200).json("success");
+        } catch (error) {
+            console.log(error);
+            res.status(400).json(error);
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(400).json(error);
+    }
+})
+//subject Routes ends//
+
+
 //topic Routes start
-
-
 function checkFormat(question){
 
 }
@@ -28,7 +73,7 @@ router.post("/addTopic",async(req,res)=>{
         try {
             const data=await db.save();
             try{
-                await classModel.findByIdAndUpdate({_id:req.body.classID},{$addToSet:{'topics':data._id}});
+                await subjectModel.findByIdAndUpdate({_id:req.body.subjectID},{$addToSet:{'topics':data._id}});
                 res.status(200).json("success");
             }catch(error){
                 console.log(error);
@@ -44,20 +89,17 @@ router.post("/addTopic",async(req,res)=>{
         res.status(400).json(error);
     }
 });
-router.get("/topics/:classID",async(req,res)=>{
+router.get("/topics/:subjectID",async(req,res)=>{
     console.log(req.params);
-    try {
-        const data=await classModel.findById({_id:req.params.classID});
-        if(data!==undefined)
-            res.status(200).json(data);
-        else
-            res.status(200).json("no data");
-    } catch (error) {
-        console.log(error);
-        res.status(400).json(error);
-    }
+        subjectModel.findById({_id:req.params.subjectID}).populate("topics").exec((err,data)=>{
+            if(err){
+                console.log(err);
+                res.status(400).json(err);
+            }
+            else
+                res.status(200).json(data);
+        })
 });
-
 //topic Routes ends
 
 //question Routes starts//
