@@ -2,15 +2,11 @@ const router=require('express').Router();
 
 const {classModel,topicModel,questionModel,subjectModel}=require("../DataBase/database");
 
-//middlewares to check for session
-// function checkSession(req,res,next){
-//     if(req.)
-// }
-//ends
+
 
 //route class Started//
 router.get("/class",(req,res)=>{
-    classModel.find({}).populate("subjects").exec((err,data)=>{
+    classModel.find({}).populate({path:"subjects"}).exec((err,data)=>{
         if(err){
             console.log(err);
             res.status(400).json(err);
@@ -24,6 +20,17 @@ router.get("/class",(req,res)=>{
 //subject Routes start//
 router.get("/subject/:className",(req,res)=>{
     classModel.findOne({name:req.params.className}).populate("subjects").exec((err,data)=>{
+        if(err){
+            console.log(err);
+            res.status(400).json(err);
+        }
+        else
+            res.status(200).json(data);
+    });
+});
+
+router.get("/subject_by_ID/:classID",(req,res)=>{
+    classModel.findById({_id:req.params.classID}).populate("subjects").exec((err,data)=>{
         if(err){
             console.log(err);
             res.status(400).json(err);

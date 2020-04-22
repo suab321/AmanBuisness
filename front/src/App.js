@@ -4,6 +4,7 @@ import {Route,BrowserRouter as Router,Switch} from 'react-router-dom'
 import Topic from './components/topics/Topic';
 import Question from "./components/question/Question";
 import axios from 'axios';
+import Admin from './components/admin/Admin';
 
 const {backendURL}=require("./imp")
 
@@ -52,6 +53,7 @@ class App extends React.Component{
         <div>
           <Switch>
             <Route exact strict path="/home" component={App}/>
+            <Route exact strict path="/admin" component={Admin}/>
             <Route exact strict path="/home" component={App}/>
             <Route exact strict path="/class/:class/:subject" component={Topic}/>
             <Route exact strict path="/home" component={App}/>
